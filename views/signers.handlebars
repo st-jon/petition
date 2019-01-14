@@ -1,0 +1,10 @@
+<a class="logout" href="/logout">Logout</a>
+<div class="presentation__signers">Hey {{name}} here are the other signers: </div>
+
+<div class="signers">
+    {{#each signers}}
+        <div class="signer__name">
+            {{first_name}} {{last_name}}
+        </div>
+    {{/each}}
+</div>

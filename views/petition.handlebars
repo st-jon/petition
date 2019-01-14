@@ -1,0 +1,25 @@
+<div class="presentation">
+    <p>Look at that guy ... how annoying... let's get rid of him !</p>
+    <p> Please join us and sign this petition to finally stop people taking selfies 
+    everytime and everywhere !</p>
+    <p>{{count}} persons have already signed the petition</p>
+</div>
+
+{{#if errorMessage}}
+    <div class="error">{{errorMessage}}</div>
+{{/if}}
+
+<form class="form" method="POST">
+    <div class="name__container">
+        <input type="text" name="firstName" class="name__input" placeholder="First name" autocomplete="off" autofocus>
+        <input type="text" name= "lastName" class="name__input" placeholder="Last name" autocomplete="off">
+    </div>
+    <input type="hidden" name="signature" class="signature">
+    <canvas class="canvas" width="500" height="200"></canvas>
+    <label for="signature" class="label">sign here</label>
+    <button class='btn__submit'>SUBMIT</button>
+</form>
+
+
+
+<script src="/canvas.js"></script>

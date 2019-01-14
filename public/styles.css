@@ -1,0 +1,262 @@
+*,
+*::after,
+*::before {
+    margin: 0;
+    padding: 0;
+    box-sizing: inherit; 
+}
+
+body, html {
+    font-family: arial;
+    font-size: 62.5%;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    font-size: 2rem;
+}
+
+.header {
+    margin-bottom: 30px;
+}
+
+.container__body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 80vh;
+}
+
+.presentation {
+    width: 50vw;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.presentation__thanks {
+    width: 50vw;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.presentation__signers {
+    width: 50vw;
+    margin-bottom: 10px;
+    text-align: center;
+    text-decoration: underline;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.name__container {
+    display: flex;
+    justify-content: center;
+    height: 100px;
+}
+
+.name__input {
+    align-self: center;
+    margin: 20px;
+    height: 30px;
+    width: 200px;
+}
+
+.canvas {
+    border: 1px solid rgb(209, 209, 209);
+    margin-bottom: 5px;
+}
+
+.label {
+    align-self: center;
+    font-size: 1.2rem;
+}
+
+.btn__submit {
+    align-self: center;
+    margin-top: 20px;
+    width: 100px;
+    height: 60px;
+    background-color: rgb(26, 26, 26);
+    border-radius: 10px;
+    box-shadow: 5px 5px  50px -9px rgba(0,0,0,0.7);
+    outline: none;
+    font-family: inherit;
+    font-size: 1.4rem;
+    color: white;
+}
+
+.logout:link, 
+.logout:visited, 
+.logout:hover, 
+.logout:active {
+    position: absolute;
+    top: 10px;
+    right: 2vw;
+    text-decoration: none;
+    color: white;
+    background: black;
+    padding: 5px 10px;
+    border: 1px solid black;
+}
+
+.img__signed {
+    width: 250px;
+    height: 100px;
+    margin-bottom: 20px;
+}
+
+.signers {
+    padding: 10px 100px;
+    height: 50vh;
+    overflow: scroll;
+}
+
+.signer__name {
+    font-style: italic;
+    text-align: center;
+}
+
+#animation1 {
+    transform: scale(1.8) translateY(-100px);
+}
+
+.ufo { 
+    animation: ufo 8s 
+}
+
+.laser {
+    position: fixed;
+    background: linear-gradient(270deg, rgb(255, 255, 255) 5%, rgb(248, 206, 54) 49%, rgb(255, 255, 255) 95%);
+    height: 150px;
+    width: 100px;
+    transform: translateY(-150px);
+    opacity: 0;
+    z-index: 200;
+    animation: laser 8s 
+}
+
+.flash {
+    position: fixed;
+    background: white;
+    opacity: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    transform: translateY(-150px) translateX(-20px);
+    animation: flash 3s infinite;
+}
+
+.explosion__container {
+    position: fixed;
+    height: 180px;
+    width: 180px;
+    z-index: 1000;
+    transform: translateY(-160px) translateX(-85px)
+}
+
+.explosion1 {
+    position: absolute; 
+    left: 50px; 
+    fill: rgb(248, 206, 54);
+    opacity: 0;
+    animation: explosion1 8s step-start;
+}
+
+.explosion2 {
+    position: absolute; 
+    left: 50px; 
+    fill: rgb(248, 206, 54);
+    opacity: 0;
+    animation: explosion2 8s step-start;
+}
+
+.selfie-guy {
+    opacity: 1;
+    animation: guy 8s step-end;
+}
+
+.rest {
+    position: fixed;
+    height: 100px;
+    width: 100px;
+    opacity: 0;
+    transform: translateY(-50px);
+    animation: rest 8s step-end;
+}
+
+.bad {
+    position: fixed;
+    fill: red;
+    width: 210px;
+    height: 210px;
+    transform: translateY(-140px) translateX(-55px);
+}
+
+.error {
+    color: red;
+}
+
+@keyframes flash {
+    0% {opacity:0; height: 0; width: 0}
+    92% {opacity:.5; height: 10px; width: 10px}
+    94% {opacity:.7; height: 80px; width: 80px}
+    95% {opacity:.9; height: 200px; width: 200px}
+    97% {opacity:.5; height: 140px; width: 140px}
+    99% {opacity:.3; height: 10px; width: 10px}
+    100% {opacity:0; height: 0; width: 0}
+}
+
+@keyframes ufo {
+    0% {transform:  scale(1.8) translateY(-100px)}
+    20% {transform:  scale(1.8) translateY(0px)}
+    80% {transform:  scale(1.8) translateY(0px)}
+}
+
+@keyframes laser {
+    19% {opacity: 0}
+    20% {opacity: 1}
+    75% {opacity: 1}
+    80% {opacity: 0}
+}
+
+@keyframes explosion1 {
+    40% {opacity: 0}
+    45% {opacity: 0}
+    50% {opacity: 1}
+    55% {opacity: 0}
+    60% {opacity: 1}
+    65% {opacity: 0}
+    70% {opacity: 1}
+    75% {opacity: 0}
+    80% {opacity: 0}
+
+}
+
+@keyframes explosion2 {
+    40% {opacity: 0}
+    45% {opacity: 1}
+    50% {opacity: 0}
+    55% {opacity: 1}
+    60% {opacity: 0}
+    65% {opacity: 1}
+    70% {opacity: 0}
+    75% {opacity: 1}
+    80% {opacity: 0}
+}
+
+@keyframes guy {
+    75% {opacity: 0}
+}
+
+@keyframes rest {
+    75% {opacity: 1}
+}
