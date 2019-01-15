@@ -1,0 +1,12 @@
+<a class="logout" href="/register">Home</a>
+
+{{#if errorMessage}}
+    <div class="error">{{errorMessage}}</div>
+{{/if}}
+
+<form class="form" method="POST">
+    <input type="text" name="email" class="input" placeholder="email" autocomplete="off">
+    <input type="password" name= "password" class="input" placeholder="password">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <button class='btn btn__login'>LOGIN</button>
+</form>

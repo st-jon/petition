@@ -1,0 +1,25 @@
+<div class="presentation">
+    <p>Look at that guy ... how annoying... let's stop that !</p>
+    <p> Please join us and sign this petition to finally stop people taking selfies 
+    everytime and everywhere !</p>
+    <p>{{count}} signed the petition</p>
+</div>
+
+{{#if errorMessage}}
+    <div class="error">{{errorMessage}}</div>
+{{/if}}
+
+{{#if message}}
+    <div class="error">{{message}}</div>
+{{/if}}
+
+<form class="form" method="POST">
+    <input type="text" name="firstName" class="input" placeholder="First name" autocomplete="off" autofocus>
+    <input type="text" name= "lastName" class="input" placeholder="Last name" autocomplete="off">
+    <input type="text" name="email" class="input" placeholder="email" autocomplete="off">
+    <input type="password" name= "password" class="input" placeholder="password">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <button class='btn btn__register'>REGISTER</button>
+</form>
+
+<a class="login" href="/login">Login</a>
