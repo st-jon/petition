@@ -1,10 +1,18 @@
 <a class="logout" href="/logout">Logout</a>
-<div class="presentation__signers">Hey <em>{{name}}</em>, here are the other signers: </div>
+
+<div class="presentation__signers">
+    Hey <em>{{name}}</em>, here are the all the signers {{#location}}from <em>{{.}}</em>{{/location}} : 
+</div>
 
 <div class="signers">
     {{#each signers}}
         <div class="signer__name">
-            {{first_name}} {{last_name}}
+            {{#if this.url}}
+                <a href="{{this.url}}">{{first_name}} {{last_name}}</a>
+            {{else}}
+                {{first_name}} {{last_name}}
+            {{/if}}
+                {{age}} {{#this.city}}<a href="/signers/{{.}}">{{.}}</a>{{/this.city}}
         </div>
     {{/each}}
 </div>

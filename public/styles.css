@@ -137,6 +137,7 @@ body, html {
 .signer__name {
     font-style: italic;
     text-align: center;
+    margin: 5px 0;
 }
 
 #animation1 {

@@ -1,0 +1,11 @@
+<div class="presentation">
+    <p>Welcome <em>{{name}}</em>, please let us know a bit more about you... Our advertisers thank you for your data!</p>
+</div>
+
+<form class="form" method="POST">
+    <input type="number" name="age" class="input" placeholder="Age" autocomplete="off" autofocus>
+    <input type="text" name= "city" class="input" placeholder="City" autocomplete="off">
+    <input type="text" name="homepage" class="input" placeholder="url" autocomplete="off">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <button class='btn btn__continue'>CONTINUE</button>
+</form>

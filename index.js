@@ -4,8 +4,12 @@ const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const cookieSession = require('cookie-session')
 const csurf = require('csurf')
+const flash = require('connect-flash')
+const validator = require("email-validator")
 
-const {addSigner, getSigner, alreadySigned, getAllSigners, getRowCount, addUser, getUser} = require('./db')
+
+const {addSigner, getSigner, getUserAndCheckSigner, getRowCount, addUser, addProfile, getSignersProfiles, getSignersFromCity} = require('./db')
+const {checkProfile, PasswordValidator} = require('./utils')
 const {hashPassword, checkPassword} = require('./crypt')
 const {cookieSecret} = require('./secrets')
 
@@ -17,6 +21,7 @@ app.use(cookieSession({
     secret: `${cookieSecret}`,
     maxAge: 1000 * 60 * 60 * 24 * 14
 }))
+app.use(flash())
 app.use(csurf())
 app.use((req, res, next) => {
     res.locals.csrfToken = req.csrfToken()
@@ -62,7 +67,9 @@ app.get('/register', (req, res) => {
         getRowCount()
             .then( result => {
                 res.render('register', {
-                    count: result.rows[0].count > 0 ? `${result.rows[0].count} persons have already` : `You'll be the first to`,
+                    count: result.rows[0].count > 0 ? 
+                           `${result.rows[0].count} persons have already` : `You'll be the first to`,
+                    errorMessage: req.flash('message'),
                     layout: 'main'
                 })
             })     
@@ -70,7 +77,45 @@ app.get('/register', (req, res) => {
 })
 
 app.post('/register', (req, res) => {
-    hashPassword(req.body.password)
+    if(req.body.firstName === '' || req.body.lastName === '') {
+        req.flash('message', 'Please provide first and last name')
+        res.redirect('/register')
+        return
+    }
+
+    let password = req.body.password
+    let validation = PasswordValidator.validate(password, { list: true })
+
+    if (validation.includes('min')) {
+        req.flash('message', 'Password must be at least 8 characters')
+        res.redirect('/register')
+        return
+    } else if (validation.includes('uppercase')) {
+        req.flash('message', 'Password must contains uppercase character')
+        res.redirect('/register')
+        return
+    } else if (validation.includes('lowercase')) {
+        req.flash('message', 'Password must contains lowercase character')
+        res.redirect('/register')
+        return
+    } else if (validation.includes('digits')) {
+        req.flash('message', 'Password must contains at least one digit')
+        res.redirect('/register')
+        return
+    } else if (validation.includes('spaces')){
+        req.flash('message', 'Password cannot have space inside')
+        res.redirect('/register')
+        return
+    } 
+
+    let email = req.body.email
+    if (!validator.validate(email)) {
+        req.flash('message', 'please provide a valid email')
+        res.redirect('/register')
+        return
+    }
+
+    hashPassword(password)
         .then(hash => {
             return addUser(req.body.firstName, req.body.lastName, req.body.email, hash)
         })
@@ -80,15 +125,43 @@ app.post('/register', (req, res) => {
                 userID: data.rows[0].id,
                 name: `${data.rows[0]['first_name']} ${data.rows[0]['last_name']}`,
             }
-            res.redirect('/petition')
+            res.redirect('/profil')
         })
         .catch(err => {
-            console.log(err.message)
+            console.log(err)
+            let error = err.code === '23505' ? 'Email already registered try to login' : "Hu Ho... something went wrong !"
+            res.render('register', {
+                errorMessage: error,
+                layout: 'main'
+            })
+        })  
+})
+
+app.get('/profil', (req, res) => {
+    res.render('profil', {
+        name: req.session.name,
+        layout: 'main'
+    })
+})
+
+app.post('/profil', (req, res) => {
+    let profile = checkProfile(req.body.age, req.body.city, req.body.url)
+    if (Object.keys(profile).length !== 0 && profile.constructor === Object) {
+        addProfile(profile.age, profile.city, profile.url, req.session.userID)
+            .then(() => {
+                res.redirect('/petition')
+            })
+            .catch(err => {
+                let error = err.code === '23505' ? 
+                            `You've already set your profil` : "Hu Ho... something went wrong !"
                 res.render('register', {
-                    errorMessage: "Hu Ho... something went wrong !",
+                    errorMessage: error,
                     layout: 'main'
                 })
-        })  
+            })
+    } else {
+        res.redirect('/petition')
+    }
 })
 
 app.get('/login', (req, res) => {
@@ -100,30 +173,17 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
     let userID = ''
     let name = ''
-    getUser(req.body.email).then(data => {
+    let signID = ''
+    getUserAndCheckSigner(req.body.email).then(data => {
         userID = data.rows[0].id
         name = `${data.rows[0]['first_name']} ${data.rows[0]['last_name']}`
+        signID = data.rows[0]['sign_id']? data.rows[0]['sign_id'] : ''
         return checkPassword(req.body.password, data.rows[0].password)
     })
     .then(bool => {
         if (bool) {
-            alreadySigned(userID).then(result => {
-                if (result.rows.length >= 1) {
-                    req.session = {
-                        userID,
-                        name,
-                        id: result.rows[0].id
-                    }
-                    res.redirect('/thanks')
-                } else {
-                    req.session = {
-                        userID,
-                        name
-                    }
-                    res.redirect('/petition')
-                }
-            })
-            
+            req.session = {userID, name, id: signID}
+            res.redirect('/petition')
         } else {
             res.render('login', {
                 errorMessage: "You've entered a wrong password.",
@@ -182,8 +242,20 @@ app.get('/thanks', private, (req, res) => {
         })
 })
 
+app.get('/signers/:city', (req, res) => {
+    getSignersFromCity(req.params.city)
+        .then((data)=> {
+            res.render('signers', {
+                location: req.params.city,
+                name: req.session.name,
+                signers: data.rows,
+                layout: 'main'
+            })
+        })   
+})
+
 app.get('/signers', private, (req, res) => {
-    getAllSigners()
+    getSignersProfiles()
         .then((data) => {
             res.render('signers', {
                 name: req.session.name,
