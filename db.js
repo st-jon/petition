@@ -20,13 +20,6 @@ module.exports.getSigner = (id) => {
     `)
 }
 
-// USER ALREADY SIGNED
-module.exports.alreadySigned = (id) => {
-    return db.query(`
-        SELECT id FROM signatures WHERE user_id = ${id}
-    `)
-}
-
 // GET ALL SIGNERS
 module.exports.getUserAndCheckSigner = (email) => {
     return db.query(`
@@ -52,14 +45,6 @@ module.exports.addUser = (firstName, lastName, email, password) => {
         INSERT INTO users (first_name, last_name, email, password)
         VALUES ($1, $2, $3, $4) RETURNING *`, 
         [firstName, lastName, email, password]
-    )
-}
-
-// GET USER
-module.exports.getUser = (email) => {
-    return db.query(`
-        SELECT * FROM users WHERE email = $1`,
-        [email]
     )
 }
 
@@ -95,5 +80,65 @@ module.exports.getSignersFromCity = (city) => {
         ON users.id = signatures.user_id 
         WHERE user_profiles.city = $1;`,
         [city]
+    )
+}
+
+// GET USER TO EDIT PROFILE
+module.exports.getSignersProfilesToEdit = (id) => {
+    return db.query(`
+        SELECT first_name, email, last_name, age, city, url 
+        FROM users
+        LEFT JOIN user_profiles
+        ON users.id = user_profiles.user_id
+        WHERE users.id = $1`, [id]
+    )
+}
+
+// UPDATE USER
+module.exports.updateUser = (id, firstName, lastName, email) => {
+    return db.query(`
+        UPDATE users
+        SET first_name = $2,
+            last_name = $3,
+            email = $4
+        WHERE id = $1`,
+        [id, firstName, lastName, email]
+    )
+}
+
+// UPDATE USER AND PASSWORD
+module.exports.updateUserAndPassword = (id, firstName, lastName, email, password) => {
+    return db.query(`
+        UPDATE users
+        SET first_name = $2,
+            last_name = $3,
+            email = $4,
+            password = $5
+        WHERE id = $1`,
+        [id, firstName, lastName, email, password]
+    )
+}
+
+// UPSERT USER PROFILE
+module.exports.upsertUserProfile = (age, city, url, userID) => {
+    return db.query(`
+        INSERT INTO user_profiles (age, city, url, user_id)
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (user_id)
+        DO UPDATE 
+        SET age = $1, 
+            city = $2,
+            url = $3`,
+        [age, city, url, userID]
+    )
+}
+
+
+// DELETE SIGNATURES
+module.exports.deleteSigner = (id) => {
+    return db.query(`
+        DELETE FROM signatures 
+        WHERE id = $1`,
+        [id]
     )
 }

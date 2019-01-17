@@ -2,7 +2,7 @@
     <p>Look at that guy ... how annoying... let's stop that !</p>
     <p> Please join us and sign this petition to finally stop people taking selfies 
     everytime and everywhere !</p>
-    <p>{{count}} signed the petition</p>
+    {{#count}}<p class="count">The petition has been signed {{.}}.</p>{{/count}}
 </div>
 
 {{#if errorMessage}}

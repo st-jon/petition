@@ -1,0 +1,23 @@
+<a class="logout" href="/logout">Logout</a>
+
+<div class="presentation">Edit your profile :</div>
+
+{{#if errorMessage}}
+    <div class="error">{{errorMessage}}</div>
+{{/if}}
+
+{{#if message}}
+    <div class="success">{{message}}</div>
+{{/if}}
+
+<form class="form" method="POST">
+    <input type="text" name="firstName" class="input__edit" placeholder="First name" value="{{firstName}}" autocomplete="off" autofocus>
+    <input type="text" name= "lastName" class="input__edit" placeholder="Last name" value="{{lastName}}" autocomplete="off">
+    <input type="text" name="email" class="input__edit" placeholder="email" value="{{email}}" autocomplete="off">
+    <input type="password" name= "password" class="input__edit" placeholder="password">
+    <input type="number" name="age" class="input__edit" placeholder="Age" value="{{age}}" autocomplete="off">
+    <input type="text" name= "city" class="input__edit" placeholder="City" value="{{city}}" autocomplete="off">
+    <input type="text" name="url" class="input__edit" placeholder="url" value="{{url}}" autocomplete="off">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <button class='btn btn__edit'>EDIT</button>
+</form>

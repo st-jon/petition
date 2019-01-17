@@ -5,11 +5,10 @@ const cookieParser = require('cookie-parser')
 const cookieSession = require('cookie-session')
 const csurf = require('csurf')
 const flash = require('connect-flash')
-const validator = require("email-validator")
 
 
-const {addSigner, getSigner, getUserAndCheckSigner, getRowCount, addUser, addProfile, getSignersProfiles, getSignersFromCity} = require('./db')
-const {checkProfile, PasswordValidator} = require('./utils')
+const {addSigner, getSigner, getUserAndCheckSigner, getRowCount, addUser, addProfile, getSignersProfiles, getSignersFromCity, getSignersProfilesToEdit, updateUser, updateUserAndPassword, upsertUserProfile, deleteSigner} = require('./db')
+const {checkProfile, validateForm} = require('./utils')
 const {hashPassword, checkPassword} = require('./crypt')
 const {cookieSecret} = require('./secrets')
 
@@ -54,6 +53,14 @@ const hasSigned = (req, res, next) => {
     }
 }
 
+const isLoggedIn = (req, res, next) => {
+    if(!req.session.userID) {
+        res.redirect('/register')
+    } else {
+        next()
+    }
+}
+
 app.get('/', (req, res) => {
     res.redirect('/register')
 })
@@ -67,8 +74,8 @@ app.get('/register', (req, res) => {
         getRowCount()
             .then( result => {
                 res.render('register', {
-                    count: result.rows[0].count > 0 ? 
-                           `${result.rows[0].count} persons have already` : `You'll be the first to`,
+                    count: result.rows[0].count >= 1 ? 
+                           `${result.rows[0].count} times` : `${result.rows[0].count} time`,
                     errorMessage: req.flash('message'),
                     layout: 'main'
                 })
@@ -77,45 +84,21 @@ app.get('/register', (req, res) => {
 })
 
 app.post('/register', (req, res) => {
-    if(req.body.firstName === '' || req.body.lastName === '') {
-        req.flash('message', 'Please provide first and last name')
+
+    let validation = validateForm(req.body)
+
+    if (validation) {
+        req.flash('message', validation)
+        res.redirect('/register')
+        return
+    }
+    if (!req.body.password) {
+        req.flash('message', 'Please provide a password')
         res.redirect('/register')
         return
     }
 
-    let password = req.body.password
-    let validation = PasswordValidator.validate(password, { list: true })
-
-    if (validation.includes('min')) {
-        req.flash('message', 'Password must be at least 8 characters')
-        res.redirect('/register')
-        return
-    } else if (validation.includes('uppercase')) {
-        req.flash('message', 'Password must contains uppercase character')
-        res.redirect('/register')
-        return
-    } else if (validation.includes('lowercase')) {
-        req.flash('message', 'Password must contains lowercase character')
-        res.redirect('/register')
-        return
-    } else if (validation.includes('digits')) {
-        req.flash('message', 'Password must contains at least one digit')
-        res.redirect('/register')
-        return
-    } else if (validation.includes('spaces')){
-        req.flash('message', 'Password cannot have space inside')
-        res.redirect('/register')
-        return
-    } 
-
-    let email = req.body.email
-    if (!validator.validate(email)) {
-        req.flash('message', 'please provide a valid email')
-        res.redirect('/register')
-        return
-    }
-
-    hashPassword(password)
+    hashPassword(req.body.password)
         .then(hash => {
             return addUser(req.body.firstName, req.body.lastName, req.body.email, hash)
         })
@@ -137,14 +120,14 @@ app.post('/register', (req, res) => {
         })  
 })
 
-app.get('/profil', (req, res) => {
+app.get('/profil', isLoggedIn, (req, res) => {
     res.render('profil', {
         name: req.session.name,
         layout: 'main'
     })
 })
 
-app.post('/profil', (req, res) => {
+app.post('/profil',isLoggedIn, (req, res) => {
     let profile = checkProfile(req.body.age, req.body.city, req.body.url)
     if (Object.keys(profile).length !== 0 && profile.constructor === Object) {
         addProfile(profile.age, profile.city, profile.url, req.session.userID)
@@ -161,6 +144,88 @@ app.post('/profil', (req, res) => {
             })
     } else {
         res.redirect('/petition')
+    }
+})
+
+app.get('/edit', isLoggedIn, (req, res) => {
+    getSignersProfilesToEdit(req.session.userID)
+        .then(profile => {
+            res.render('edit', {
+                errorMessage: req.flash('errorMessage'),
+                message: req.flash('message'),
+                firstName: profile.rows[0]['first_name'],
+                lastName: profile.rows[0]['last_name'],
+                email: profile.rows[0].email,
+                age: profile.rows[0].age,
+                city: profile.rows[0].city,
+                url: profile.rows[0].url,
+                layout: 'main'
+            })
+        })
+        .catch(err => {
+            console.log(err.message)
+            res.redirect('back')
+        })
+})
+
+app.post('/edit', isLoggedIn, (req, res) => {
+
+    let validation = validateForm(req.body)
+
+    if (validation) {
+        req.flash('message', validation)
+        res.redirect('/edit')
+        return
+    }
+
+    let profile = checkProfile(req.body.age, req.body.city, req.body.url)
+
+    if (req.body.password) {
+        hashPassword(req.body.password)
+        .then(hash => {
+            return Promise.all([
+                updateUserAndPassword(req.session.userID, req.body.firstName, req.body.lastName, req.body.email, hash),
+                upsertUserProfile(profile.age, profile.city, profile.url, req.session.userID)
+            ])
+        })
+        .then(() => {
+            req.session.name = `${req.body.firstName} ${req.body.lastName}`
+            req.flash('message', 'Your profile has been edited')
+            if (req.session.id) {
+                res.redirect('thanks')
+                return
+            } else {
+                res.redirect('/petition')
+                return
+            }
+        })
+        .catch(err => {
+            console.log(err.message)
+            req.flash('errorMessage', 'Something went wrong')
+            res.redirect('/edit')
+        })
+
+    } else {
+        Promise.all([
+            updateUser(req.session.userID, req.body.firstName, req.body.lastName, req.body.email),
+            upsertUserProfile(profile.age, profile.city, profile.url, req.session.userID)
+        ])
+        .then(() => {
+            req.session.name = `${req.body.firstName} ${req.body.lastName}`
+            req.flash('message', 'Your profile has been edited')
+            if (req.session.id) {
+                res.redirect('thanks')
+                return
+            } else {
+                res.redirect('/petition')
+                return
+            }
+        })
+        .catch(err => {
+            console.log(err.message)
+            req.flash('errorMessage', 'Something went wrong')
+            res.redirect('/edit')
+        })
     }
 })
 
@@ -205,8 +270,10 @@ app.get('/petition', hasSigned, (req, res) => {
         .then(result => {
             res.render('petition', {
                 title: '...Petition',
+                message: req.flash('message'),
                 name: req.session.name,
-                count: result.rows[0].count > 0 ? `${result.rows[0].count} persons have already` : `You'll be the first to`,
+                count: result.rows[0].count >= 1 ? 
+                           `${result.rows[0].count} times` : `${result.rows[0].count} time`,
                 layout: 'main'
             })
         })
@@ -216,10 +283,7 @@ app.post('/petition', hasSigned, (req, res) => {
     addSigner(req.body.signature, req.session.userID)
         .then((data) => {
             console.log('added new signature in database Signatures')
-            req.session = {
-                id: data.rows[0].id,
-                name: req.session.name
-            }
+            req.session.id = data.rows[0].id
             res.redirect('thanks')
         }).catch(err => {
             console.log(err.message)
@@ -236,13 +300,30 @@ app.get('/thanks', private, (req, res) => {
         .then(data => {
             res.render('thanks', {
                 layout: 'main',
+                message: req.flash('message'),
+                errorMessage: req.flash('errorMessage'),
                 name: req.session.name,
                 signature: data.rows[0].signature
             })
         })
 })
 
-app.get('/signers/:city', (req, res) => {
+app.post('/thanks', private, (req, res) => {
+    deleteSigner(req.session.id)
+        .then(() => {
+            req.session.id = null
+            req.flash('message', "You've unsigned the petition")
+            res.redirect('/petition')
+            return
+        })
+        .catch(err => {
+            req.flash('errorMessage', 'something went wrong')
+            res.redirect('/thanks')
+            return
+        })
+})
+
+app.get('/signers/:city', private, (req, res) => {
     getSignersFromCity(req.params.city)
         .then((data)=> {
             res.render('signers', {

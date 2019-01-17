@@ -51,6 +51,10 @@ body, html {
     text-decoration: underline;
 }
 
+.count {
+    margin: 10px;
+}
+
 .form {
     display: flex;
     flex-direction: column;
@@ -66,6 +70,13 @@ body, html {
 .input {
     align-self: center;
     margin: 20px;
+    height: 30px;
+    width: 200px;
+}
+
+.input__edit {
+    align-self: center;
+    margin: 10px;
     height: 30px;
     width: 200px;
 }
@@ -92,6 +103,7 @@ body, html {
     font-family: inherit;
     font-size: 1.4rem;
     color: white;
+    cursor: pointer;
 }
 
 .logout:link, 
@@ -99,8 +111,9 @@ body, html {
 .logout:hover, 
 .logout:active {
     position: absolute;
-    top: 10px;
+    top: 15px;
     right: 2vw;
+    font-weight: 500;
     text-decoration: none;
     color: white;
     background: black;
@@ -113,13 +126,34 @@ body, html {
 .login:hover, 
 .login:active {
     position: absolute;
-    top: 10px;
+    top: 15px;
     right: 2vw;
+    font-weight: 500;
     text-decoration: none;
     color: white;
     background: black;
     padding: 5px 10px;
     border: 1px solid black;
+}
+.go-back:link,
+.go-back:visited, 
+.go-back:hover, 
+.go-back:active {
+    font-weight: 500;
+    text-decoration: none;
+    color: white;
+    background: black;
+    padding: 5px 10px;
+    border: 1px solid black;
+}
+
+.edit-profil {
+    position: absolute;
+    top: 0;
+    left: 2vw;
+    width: 70px;
+    height: 70px;
+    cursor: pointer;
 }
 
 .img__signed {
@@ -135,10 +169,33 @@ body, html {
 }
 
 .signer__name {
-    font-style: italic;
     text-align: center;
     margin: 5px 0;
+    display: flex;
+    justify-content: center;
 }
+
+.name,
+.age,
+.city {
+    margin: 0 10px;
+    text-transform: capitalize;
+}
+
+.name__presentation {
+    text-transform: capitalize;
+}
+
+a {
+    color: black;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+a:hover {
+    color: rgb(10, 29, 199);
+}
+
 
 #animation1 {
     transform: scale(1.8) translateY(-100px);
@@ -218,6 +275,12 @@ body, html {
 
 .error {
     color: red;
+    margin: 10px;
+}
+
+.success {
+    color: green;
+    margin: 10px;
 }
 
 @keyframes flash {

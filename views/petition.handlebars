@@ -1,20 +1,26 @@
 <a class="logout" href="/logout">Logout</a>
-<div class="presentation">
-    <p>Hi <em>{{name}}</em> !</p>
-    <p> Please join us and sign this petition to finally stop people taking selfies 
-    everytime and everywhere !</p>
-    <p>{{count}} signed the petition</p>
-</div>
+
+<svg class="edit-profil" onclick="window.top.location.href='/edit'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 125" style="enable-background:new 0 0 100 100;" xml:space="preserve"><g>
+    <path d="M30.5,50.8c1.2-0.9,1.9-2.3,1.9-3.9c0-2.8-2.2-5-5-5c-2.8,0-5,2.2-5,5c0,1.6,0.7,3,1.9,3.9c-2.6,1.2-4.5,3.8-4.5,6.9H35   C35,54.6,33.2,52,30.5,50.8z"/><path d="M91.3,23l-36.9,0v-6.2c0-1.3-1-2.3-2.3-2.3h-4.2c-1.3,0-2.3,1-2.3,2.3V23L8.8,23C6.7,23,5,24.6,5,26.7v55.1   c0,2.1,1.7,3.7,3.8,3.7h82.5c2.1,0,3.7-1.7,3.7-3.7V26.7C95,24.6,93.3,23,91.3,23z M50,17.1c1.1,0,1.9,0.9,1.9,1.9   c0,1.1-0.9,1.9-1.9,1.9c-1.1,0-1.9-0.9-1.9-1.9C48.1,17.9,48.9,17.1,50,17.1z M40.4,70.4H14.5v-5h25.8V70.4z M27.4,63.1   c-7.1,0-12.9-5.8-12.9-12.9c0-7.1,5.8-12.9,12.9-12.9c7.1,0,12.9,5.8,12.9,12.9C40.4,57.3,34.6,63.1,27.4,63.1z M78.2,70.2H50v-4.9   h28.2V70.2z M86,70.2h-5.1v-4.9H86V70.2z M86,61.4H50v-4.9h36V61.4z M86,52.7H50v-4.9h36V52.7z M86,43.9H50V39h36V43.9z"/></g>
+</svg>
+
 
 {{#if errorMessage}}
     <div class="error">{{errorMessage}}</div>
 {{/if}}
 
+{{#if message}}
+    <div class="success">{{message}}</div>
+{{/if}}
+
+<div class="presentation">
+    <p>Hi <em class="name">{{name}}</em> !</p>
+    <p> Please join us and sign this petition to finally stop people taking selfies 
+    everytime and everywhere !</p>
+    {{#count}}<p>The petition has been signed {{.}}.</p>{{/count}}
+</div>
+
 <form class="form" method="POST">
-    {{!-- <div class="name__container">
-        <input type="text" name="firstName" class="input" placeholder="First name" autocomplete="off" autofocus>
-        <input type="text" name= "lastName" class="input" placeholder="Last name" autocomplete="off">
-    </div> --}}
     <input type="hidden" name="_csrf" value="{{csrfToken}}">
     <input type="hidden" name="signature" class="signature">
     <canvas class="canvas" width="500" height="200"></canvas>
