@@ -96,6 +96,7 @@ body, html {
     margin-top: 20px;
     width: 100px;
     height: 60px;
+    font-weight: 700;
     background-color: rgb(26, 26, 26);
     border-radius: 10px;
     box-shadow: 5px 5px  50px -9px rgba(0,0,0,0.7);
@@ -156,6 +157,23 @@ body, html {
     cursor: pointer;
 }
 
+
+.delete-profile:link, 
+.delete-profile:visited, 
+.delete-profile:hover, 
+.delete-profile:active {
+    position: absolute;
+    top: 15px;
+    left: 2vw;
+    font-weight: 500;
+    text-decoration: none;
+    color: white;
+    background: black;
+    padding: 5px 10px;
+    border: 1px solid black;
+    cursor: pointer;
+}
+
 .img__signed {
     width: 250px;
     height: 100px;
@@ -195,7 +213,6 @@ a {
 a:hover {
     color: rgb(10, 29, 199);
 }
-
 
 #animation1 {
     transform: scale(1.8) translateY(-100px);

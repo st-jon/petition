@@ -6,10 +6,10 @@ const cookieSession = require('cookie-session')
 const csurf = require('csurf')
 const flash = require('connect-flash')
 
-
-const {addSigner, getSigner, getUserAndCheckSigner, getRowCount, addUser, addProfile, getSignersProfiles, getSignersFromCity, getSignersProfilesToEdit, updateUser, updateUserAndPassword, upsertUserProfile, deleteSigner} = require('./db')
+const {addSigner, getSigner, getUserAndCheckSigner, getRowCount, addUser, addProfile, getSignersProfiles, getSignersFromCity, getSignersProfilesToEdit, updateUser, updateUserAndPassword, upsertUserProfile, deleteSigner, deleteUser} = require('./db')
 const {checkProfile, validateForm} = require('./utils')
 const {hashPassword, checkPassword} = require('./crypt')
+const {private, hasSigned, isLoggedIn, isRegistered} = require('./middleware')
 const {cookieSecret} = require('./secrets')
 
 const app = express()
@@ -37,50 +37,21 @@ app.use(express.static(__dirname + '/public/'))
 app.engine('handlebars', hb())
 app.set('view engine', 'handlebars')
 
-const private = (req, res, next) => {
-    if(!req.session.id) {
-        res.redirect('/petition')
-    } else {
-        next()
-    }
-}
-
-const hasSigned = (req, res, next) => {
-    if(req.session.id) {
-        res.redirect('/thanks')
-    } else {
-        next()
-    }
-}
-
-const isLoggedIn = (req, res, next) => {
-    if(!req.session.userID) {
-        res.redirect('/register')
-    } else {
-        next()
-    }
-}
-
 app.get('/', (req, res) => {
     res.redirect('/register')
 })
 
-app.get('/register', (req, res) => {
-    if(req.session.userID){
-        res.redirect('/petition')
-    } else if (req.session.id) {
-        res.redirect('/thanks')
-    } else {
-        getRowCount()
-            .then( result => {
-                res.render('register', {
-                    count: result.rows[0].count >= 1 ? 
-                           `${result.rows[0].count} times` : `${result.rows[0].count} time`,
-                    errorMessage: req.flash('message'),
-                    layout: 'main'
-                })
-            })     
-    }
+app.get('/register', isLoggedIn, (req, res) => {
+    getRowCount()
+        .then( result => {
+            res.render('register', {
+                message: req.flash('message'),
+                count: result.rows[0].count >= 1 ? 
+                        `${result.rows[0].count} times` : `${result.rows[0].count} time`,
+                errorMessage: req.flash('errorMessage'),
+                layout: 'main'
+            })
+        })     
 })
 
 app.post('/register', (req, res) => {
@@ -88,12 +59,12 @@ app.post('/register', (req, res) => {
     let validation = validateForm(req.body)
 
     if (validation) {
-        req.flash('message', validation)
+        req.flash('errorMessage', validation)
         res.redirect('/register')
         return
     }
     if (!req.body.password) {
-        req.flash('message', 'Please provide a password')
+        req.flash('errorMessage', 'Please provide a password')
         res.redirect('/register')
         return
     }
@@ -120,34 +91,34 @@ app.post('/register', (req, res) => {
         })  
 })
 
-app.get('/profil', isLoggedIn, (req, res) => {
+app.get('/profil', isRegistered, (req, res) => {
     res.render('profil', {
         name: req.session.name,
         layout: 'main'
     })
 })
 
-app.post('/profil',isLoggedIn, (req, res) => {
+app.post('/profil', isRegistered, (req, res) => {
     let profile = checkProfile(req.body.age, req.body.city, req.body.url)
     if (Object.keys(profile).length !== 0 && profile.constructor === Object) {
         addProfile(profile.age, profile.city, profile.url, req.session.userID)
             .then(() => {
+                req.flash('message', 'Welcome! Thank you for filling the forms')
                 res.redirect('/petition')
             })
             .catch(err => {
                 let error = err.code === '23505' ? 
                             `You've already set your profil` : "Hu Ho... something went wrong !"
-                res.render('register', {
-                    errorMessage: error,
-                    layout: 'main'
-                })
+                req.flash('errorMessage', error)
+                res.redirect('/petition')
             })
     } else {
+        req.flash('message', "thank you! You'll be able to set your profil information by clicking on the icon top left")
         res.redirect('/petition')
     }
 })
 
-app.get('/edit', isLoggedIn, (req, res) => {
+app.get('/edit', isRegistered, (req, res) => {
     getSignersProfilesToEdit(req.session.userID)
         .then(profile => {
             res.render('edit', {
@@ -168,12 +139,12 @@ app.get('/edit', isLoggedIn, (req, res) => {
         })
 })
 
-app.post('/edit', isLoggedIn, (req, res) => {
+app.post('/edit', isRegistered, (req, res) => {
 
     let validation = validateForm(req.body)
 
     if (validation) {
-        req.flash('message', validation)
+        req.flash('errorMessage', validation)
         res.redirect('/edit')
         return
     }
@@ -192,7 +163,7 @@ app.post('/edit', isLoggedIn, (req, res) => {
             req.session.name = `${req.body.firstName} ${req.body.lastName}`
             req.flash('message', 'Your profile has been edited')
             if (req.session.id) {
-                res.redirect('thanks')
+                res.redirect('/thanks')
                 return
             } else {
                 res.redirect('/petition')
@@ -214,7 +185,7 @@ app.post('/edit', isLoggedIn, (req, res) => {
             req.session.name = `${req.body.firstName} ${req.body.lastName}`
             req.flash('message', 'Your profile has been edited')
             if (req.session.id) {
-                res.redirect('thanks')
+                res.redirect('/thanks')
                 return
             } else {
                 res.redirect('/petition')
@@ -229,13 +200,13 @@ app.post('/edit', isLoggedIn, (req, res) => {
     }
 })
 
-app.get('/login', (req, res) => {
+app.get('/login', isLoggedIn, (req, res) => {
     res.render('login', {
         layout: 'main'
     })
 })
 
-app.post('/login', (req, res) => {
+app.post('/login', isLoggedIn, (req, res) => {
     let userID = ''
     let name = ''
     let signID = ''
@@ -351,7 +322,24 @@ app.get('/logout', (req, res) => {
     res.redirect('/register')
 })
 
-app.get(['/error', '*'], (req, res) => {
+app.get('/kill', (req, res) => {
+    deleteUser(req.session.userID)
+        .then(() => {
+            req.session.userID = null
+            req.session.id= null
+            req.session.name = null
+            req.flash('message', "You're profile has been deleted")
+            res.redirect('/register')
+            return
+        })
+        .catch(err => {
+            req.flash('errorMessage', "something went wrong, try again later'")
+            res.redirect('/edit')
+            return
+        })
+})
+
+app.get('*', (req, res) => {
     res.render('error')
 })
 

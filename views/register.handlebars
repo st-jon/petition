@@ -1,10 +1,3 @@
-<div class="presentation">
-    <p>Look at that guy ... how annoying... let's stop that !</p>
-    <p> Please join us and sign this petition to finally stop people taking selfies 
-    everytime and everywhere !</p>
-    {{#count}}<p class="count">The petition has been signed {{.}}.</p>{{/count}}
-</div>
-
 {{#if errorMessage}}
     <div class="error">{{errorMessage}}</div>
 {{/if}}
@@ -12,6 +5,13 @@
 {{#if message}}
     <div class="success">{{message}}</div>
 {{/if}}
+
+<div class="presentation">
+    <p>Look at that guy ... how annoying... let's stop that !</p>
+    <p> Please join us and sign this petition to finally stop people taking selfies 
+    everytime and everywhere !</p>
+    {{#count}}<p class="count">The petition has been signed {{.}}.</p>{{/count}}
+</div>
 
 <form class="form" method="POST">
     <input type="text" name="firstName" class="input" placeholder="First name" autocomplete="off" autofocus>

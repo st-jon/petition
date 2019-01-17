@@ -1,3 +1,12 @@
+
+{{#if errorMessage}}
+    <div class="error">{{errorMessage}}</div>
+{{/if}}
+
+{{#if message}}
+    <div class="success">{{message}}</div>
+{{/if}}
+
 <div class="presentation">
     <p>Welcome <em class="name__presentation">{{name}}</em>, please let us know a bit more about you... Our advertisers thank you for your data!</p>
 </div>
@@ -9,3 +18,5 @@
     <input type="hidden" name="_csrf" value="{{csrfToken}}">
     <button class='btn btn__continue'>CONTINUE</button>
 </form>
+
+

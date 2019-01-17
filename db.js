@@ -133,11 +133,19 @@ module.exports.upsertUserProfile = (age, city, url, userID) => {
     )
 }
 
-
 // DELETE SIGNATURES
 module.exports.deleteSigner = (id) => {
     return db.query(`
         DELETE FROM signatures 
+        WHERE id = $1`,
+        [id]
+    )
+}
+
+// DELETE USER
+module.exports.deleteUser = (id) => {
+    return db.query(`
+        DELETE FROM users 
         WHERE id = $1`,
         [id]
     )
