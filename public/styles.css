@@ -51,6 +51,77 @@ body, html {
     text-decoration: underline;
 }
 
+.dark {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background: black;
+    opacity: .5;
+    z-index: 1800;
+}
+
+.nodal__container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+
+}
+
+.nodal {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    height: 300px;
+    width: 500px;
+    background-color: white;  
+}
+
+.confirm:link, 
+.confirm:visited, 
+.confirm:hover, 
+.confirm:active {
+    text-align: center;
+    font-weight: 500;
+    text-decoration: none;
+    color: white;
+    background: black;
+    padding: 5px 10px;
+    width: 10vw;
+    margin: 10px;
+    border: 1px solid black;
+    cursor: pointer;
+
+}
+
+.confirm__text {
+    margin-bottom: 40px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.selfie__container {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+}
+
+.selfie {
+    height: 60vh;
+    width: 60vh;
+    object-fit: cover;
+}
+
 .count {
     margin: 10px;
 }
@@ -96,7 +167,6 @@ body, html {
     margin-top: 20px;
     width: 100px;
     height: 60px;
-    font-weight: 700;
     background-color: rgb(26, 26, 26);
     border-radius: 10px;
     box-shadow: 5px 5px  50px -9px rgba(0,0,0,0.7);
@@ -157,11 +227,7 @@ body, html {
     cursor: pointer;
 }
 
-
-.delete-profile:link, 
-.delete-profile:visited, 
-.delete-profile:hover, 
-.delete-profile:active {
+.delete-profile {
     position: absolute;
     top: 15px;
     left: 2vw;

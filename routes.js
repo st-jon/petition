@@ -61,6 +61,12 @@ app.post('/register', (req, res) => {
         })  
 })
 
+app.get('/selfies', (req, res) => {
+    res.render('selfies', {
+        layout: 'main'
+    })
+})
+
 app.get('/profil', isRegistered, (req, res) => {
     res.render('profil', {
         name: req.session.name,

@@ -5,14 +5,13 @@ genSalt = promisify(genSalt)
 hash = promisify(hash)
 compare = promisify(compare)
 
-
-module.exports.hashPassword = (plainTextPassword) => {
+module.exports.hashPassword = (password) => {
     return new Promise((resolve, reject) => {
         genSalt((err, salt) => {
             if (err) {
                 return reject(err)
             }
-            hash(plainTextPassword, salt, (err, hash) => {
+            hash(password, salt, (err, hash) => {
                 if (err) {
                     return reject(err)
                 }
@@ -22,9 +21,9 @@ module.exports.hashPassword = (plainTextPassword) => {
     })
 }
 
-module.exports.checkPassword = (textEnteredInLoginForm, hashedPasswordFromDatabase) => {
+module.exports.checkPassword = (submitText, hash) => {
     return new Promise((resolve, reject) => {
-        compare(textEnteredInLoginForm, hashedPasswordFromDatabase, (err, doesMatch) => {
+        compare(submitText, hash, (err, doesMatch) => {
             if (err) {
                 reject(err.message)
             } else {

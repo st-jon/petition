@@ -1,5 +1,14 @@
 <a class="logout" href="/logout">Logout</a>
-<a class="delete-profile" href="/kill">Delete Profile</a>
+<div class="delete-profile" href="">Delete Profile</div>
+
+<div class="dark"></div>
+<div class="nodal__container">
+    <div class="nodal">
+        <p class="confirm__text">Are you sure you want to delete your account ?</p>
+        <a class="confirm" href="/kill">Yes</a>
+        <a class="confirm" href="/edit">No</a>
+    </div>
+</div>
 
 <div class="presentation">Edit your profile :</div>
 
@@ -22,3 +31,6 @@
     <input type="hidden" name="_csrf" value="{{csrfToken}}">
     <button class='btn btn__edit'>EDIT</button>
 </form>
+
+<script src="/nodal.js"></script>
+

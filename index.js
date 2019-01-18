@@ -26,7 +26,6 @@ if (process.env.SESSION_SECRET_COOKIE) {
     }))
 }
 
-
 app.use(flash())
 app.use(csurf())
 app.use((req, res, next) => {
@@ -34,10 +33,7 @@ app.use((req, res, next) => {
     res.setHeader('X-frame-Options', 'DENY')
     next()
 })
-app.use((req, res, next) => {
-    res.locals.csrfToken = req.csrfToken()
-    next()
-})
+
 app.use(express.static(__dirname + '/public/'))
 
 app.engine('handlebars', hb())
