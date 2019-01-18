@@ -1,7 +1,11 @@
 const spicedPg = require('spiced-pg')
-const {dbUser, dbPass} = require('./secrets')
-const dbUrl = process.env.DATABASE_URL || `postgres://${dbUser}:${dbPass}@localhost:5432/petition`
-const db = spicedPg(dbUrl)
+let db
+if (process.env.DATABASE_URL) {
+    db = spicedPg(process.env.DATABASE_URL)
+} else {
+    const {dbUser, dbPass} = require('./secrets')    
+    db = spicedPg(`postgres://${dbUser}:${dbPass}@localhost:5432/petition`)
+}
 
 
 // ADD SIGNER
