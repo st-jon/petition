@@ -5,5 +5,5 @@ CREATE TABLE user_profiles(
     age INTEGER,
     city VARCHAR(200),
     url VARCHAR(600),
-    user_id INTEGER REFERENCES users(id) UNIQUE NOT NULL
+    user_id INTEGER UNIQUE NOT NULL  REFERENCES users(id) ON DELETE CASCADE
 );

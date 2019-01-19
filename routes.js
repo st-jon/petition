@@ -17,7 +17,7 @@ app.get('/register', isLoggedIn, (req, res) => {
             res.render('register', {
                 message: req.flash('message'),
                 errorMessage: req.flash('errorMessage'),
-                count: result.rows[0].count >= 1 ? 
+                count: result.rows[0].count > 1 ? 
                         `${result.rows[0].count} times` : `${result.rows[0].count} time`,
                 layout: 'main'
             })
@@ -222,10 +222,9 @@ app.get('/petition', hasSigned, (req, res) => {
     getRowCount()
         .then(result => {
             res.render('petition', {
-                title: '...Petition',
                 message: req.flash('message'),
                 name: req.session.name,
-                count: result.rows[0].count >= 1 ? 
+                count: result.rows[0].count > 1 ? 
                            `${result.rows[0].count} times` : `${result.rows[0].count} time`,
                 layout: 'main'
             })
@@ -239,10 +238,10 @@ app.post('/petition', hasSigned, (req, res) => {
             req.session.id = data.rows[0].id
             res.redirect('thanks')
         }).catch(err => {
-            console.log(err.message)
+            console.log(err)
+            let error = err.code === '23514' ? 'You need to sign the petition before submitting' : "Hu Ho... something went wrong !"
             res.render('petition', {
-                title: '...Petition',
-                errorMessage: "Hu Ho... something went wrong !",
+                errorMessage: error,
                 layout: 'main'
             })
         }) 
@@ -300,8 +299,12 @@ app.get('/signers', private, (req, res) => {
 })
 
 app.get('/logout', (req, res) => {
-    req.session = null
+    req.session.userID = null
+    req.session.id= null
+    req.session.name = null
+    req.flash('message', "You've been succesfully logged out")
     res.redirect('/register')
+    return
 })
 
 app.get('/kill', (req, res) => {
