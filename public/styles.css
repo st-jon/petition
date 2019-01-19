@@ -113,8 +113,12 @@ body, html {
 .selfie__container {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     list-style: none;
+    height: 60vh;
+    width: 60vh;
     margin-bottom: 80px;
+    overflow: hidden;
 }
 
 .selfie {
