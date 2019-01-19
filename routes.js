@@ -16,9 +16,9 @@ app.get('/register', isLoggedIn, (req, res) => {
         .then( result => {
             res.render('register', {
                 message: req.flash('message'),
+                errorMessage: req.flash('errorMessage'),
                 count: result.rows[0].count >= 1 ? 
                         `${result.rows[0].count} times` : `${result.rows[0].count} time`,
-                errorMessage: req.flash('errorMessage'),
                 layout: 'main'
             })
         })     
@@ -63,7 +63,7 @@ app.post('/register', (req, res) => {
 
 app.get('/selfies', (req, res) => {
     res.render('selfies', {
-        layout: 'main'
+        layout: 'selfiesmain'
     })
 })
 
@@ -147,10 +147,13 @@ app.post('/edit', isRegistered, (req, res) => {
             }
         })
         .catch(err => {
-            console.log(err.message)
-            req.flash('errorMessage', 'Something went wrong')
-            res.redirect('/edit')
-        })
+            console.log(err)
+            let error = err.code === '23505' ? 'Email already registered' : "Hu Ho... something went wrong !"
+            res.render('edit', {
+                errorMessage: error,
+                layout: 'main'
+            })
+        }) 
 
     } else {
         Promise.all([
@@ -169,9 +172,12 @@ app.post('/edit', isRegistered, (req, res) => {
             }
         })
         .catch(err => {
-            console.log(err.message)
-            req.flash('errorMessage', 'Something went wrong')
-            res.redirect('/edit')
+            console.log(err)
+            let error = err.code === '23505' ? 'Email already registered' : "Hu Ho... something went wrong !"
+            res.render('edit', {
+                errorMessage: error,
+                layout: 'main'
+            })
         })
     }
 })

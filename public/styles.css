@@ -114,12 +114,20 @@ body, html {
     display: flex;
     justify-content: center;
     list-style: none;
+    margin-bottom: 80px;
 }
 
 .selfie {
     height: 60vh;
     width: 60vh;
     object-fit: cover;
+}
+
+.title {
+    color: #FFF;
+    background: black;
+    padding: 5px 10px;
+    border: 1px solid black;
 }
 
 .count {
