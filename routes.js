@@ -7,6 +7,22 @@ const {private, hasSigned, isLoggedIn, isRegistered} = require('./middleware')
 
 const app = express()
 
+const redis = require('redis')
+const {promisify} = require('util')
+
+const client = redis.createClient({
+    host: 'localhost',
+    port: 6379
+})
+
+client.setex = promisify(client.setex)
+client.set = promisify(client.set)
+client.get = promisify(client.get)
+
+client.on('error', function(err) {
+    console.log(err)
+})
+
 app.get('/', (req, res) => {
     res.redirect('/register')
 })
@@ -137,6 +153,7 @@ app.post('/edit', isRegistered, (req, res) => {
         })
         .then(() => {
             req.session.name = `${req.body.firstName} ${req.body.lastName}`
+            client.del('signers')
             req.flash('message', 'Your profile has been edited')
             if (req.session.id) {
                 res.redirect('/thanks')
@@ -162,6 +179,7 @@ app.post('/edit', isRegistered, (req, res) => {
         ])
         .then(() => {
             req.session.name = `${req.body.firstName} ${req.body.lastName}`
+            client.del('signers')
             req.flash('message', 'Your profile has been edited')
             if (req.session.id) {
                 res.redirect('/thanks')
@@ -236,6 +254,7 @@ app.post('/petition', hasSigned, (req, res) => {
         .then((data) => {
             console.log('added new signature in database Signatures')
             req.session.id = data.rows[0].id
+            client.del('signers')
             res.redirect('thanks')
         }).catch(err => {
             console.log(err)
@@ -264,6 +283,7 @@ app.post('/thanks', private, (req, res) => {
     deleteSigner(req.session.id)
         .then(() => {
             req.session.id = null
+            client.del('signers')
             req.flash('message', "You've unsigned the petition")
             res.redirect('/petition')
             return
@@ -288,13 +308,35 @@ app.get('/signers/:city', private, (req, res) => {
 })
 
 app.get('/signers', private, (req, res) => {
-    getSignersProfiles()
-        .then((data) => {
-            res.render('signers', {
-                name: req.session.name,
-                signers: data.rows,
-                layout: 'main'
-            })
+    client.get('signers')
+        .then(list => {
+            if (list) {
+                let signers = JSON.parse(list)
+                console.log(signers)
+                res.render('signers', {
+                    name: req.session.name,
+                    signers: signers,
+                    layout: 'main'
+                })
+            }  else {
+                getSignersProfiles()
+                    .then((data) => {
+                        let signers = JSON.stringify(data.rows)
+                        return client.set('signers', signers)
+                            .then(() => {
+                                res.render('signers', {
+                                    name: req.session.name,
+                                    signers: data.rows,
+                                    layout: 'main'
+                                })
+                            })            
+                    })
+            }
+        })       
+        .catch(err => {
+            req.flash('errorMessage', "something went wrong, try again later'")
+            res.redirect('/signers')
+            return
         })  
 })
 
