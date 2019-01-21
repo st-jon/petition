@@ -282,7 +282,7 @@ app.get('/thanks', private, (req, res) => {
 app.post('/thanks', private, (req, res) => {
     deleteSigner(req.session.signID)
         .then(() => {
-            req.session.id = null
+            req.session.signID = null
             client.del('signers')
             req.flash('message', "You've unsigned the petition")
             res.redirect('/petition')
@@ -355,6 +355,7 @@ app.get('/kill', (req, res) => {
             req.session.userID = null
             req.session.signID= null
             req.session.name = null
+            client.del('signers')
             req.flash('message', "You're profile has been deleted")
             res.redirect('/register')
             return
