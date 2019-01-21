@@ -61,10 +61,8 @@ app.post('/register', (req, res) => {
         })
         .then(data => {
             console.log('added new user in database Users')
-            req.session = {
-                userID: data.rows[0].id,
-                name: `${data.rows[0]['first_name']} ${data.rows[0]['last_name']}`,
-            }
+            req.session.userID = data.rows[0].id
+            req.session.name = `${data.rows[0]['first_name']} ${data.rows[0]['last_name']}`
             res.redirect('/profil')
         })
         .catch(err => {
@@ -155,7 +153,7 @@ app.post('/edit', isRegistered, (req, res) => {
             req.session.name = `${req.body.firstName} ${req.body.lastName}`
             client.del('signers')
             req.flash('message', 'Your profile has been edited')
-            if (req.session.id) {
+            if (req.session.signID) {
                 res.redirect('/thanks')
                 return
             } else {
@@ -181,7 +179,7 @@ app.post('/edit', isRegistered, (req, res) => {
             req.session.name = `${req.body.firstName} ${req.body.lastName}`
             client.del('signers')
             req.flash('message', 'Your profile has been edited')
-            if (req.session.id) {
+            if (req.session.signID) {
                 res.redirect('/thanks')
                 return
             } else {
@@ -218,7 +216,9 @@ app.post('/login', isLoggedIn, (req, res) => {
     })
     .then(bool => {
         if (bool) {
-            req.session = {userID, name, id: signID}
+            req.session.userID = userID
+            req.session.name = name
+            req.session.signID = signID
             res.redirect('/petition')
         } else {
             res.render('login', {
@@ -253,7 +253,7 @@ app.post('/petition', hasSigned, (req, res) => {
     addSigner(req.body.signature, req.session.userID)
         .then((data) => {
             console.log('added new signature in database Signatures')
-            req.session.id = data.rows[0].id
+            req.session.signID = data.rows[0].id
             client.del('signers')
             res.redirect('thanks')
         }).catch(err => {
@@ -267,7 +267,7 @@ app.post('/petition', hasSigned, (req, res) => {
 })
 
 app.get('/thanks', private, (req, res) => {
-    getSigner(req.session.id)
+    getSigner(req.session.signID)
         .then(data => {
             res.render('thanks', {
                 layout: 'main',
@@ -280,7 +280,7 @@ app.get('/thanks', private, (req, res) => {
 })
 
 app.post('/thanks', private, (req, res) => {
-    deleteSigner(req.session.id)
+    deleteSigner(req.session.signID)
         .then(() => {
             req.session.id = null
             client.del('signers')
@@ -342,7 +342,7 @@ app.get('/signers', private, (req, res) => {
 
 app.get('/logout', (req, res) => {
     req.session.userID = null
-    req.session.id= null
+    req.session.signID= null
     req.session.name = null
     req.flash('message', "You've been succesfully logged out")
     res.redirect('/register')
@@ -353,7 +353,7 @@ app.get('/kill', (req, res) => {
     deleteUser(req.session.userID)
         .then(() => {
             req.session.userID = null
-            req.session.id= null
+            req.session.signID= null
             req.session.name = null
             req.flash('message', "You're profile has been deleted")
             res.redirect('/register')

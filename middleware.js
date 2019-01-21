@@ -1,5 +1,5 @@
 module.exports.private = (req, res, next) => {
-    if(!req.session.id) {
+    if(!req.session.signID) {
         res.redirect('/register')
     } else {
         next()
@@ -7,7 +7,7 @@ module.exports.private = (req, res, next) => {
 }
 
 module.exports.hasSigned = (req, res, next) => {
-    if(req.session.id || !req.session.userID) {
+    if(req.session.signID || !req.session.userID) {
         res.redirect('/thanks')
     } else {
         next()

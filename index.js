@@ -5,7 +5,8 @@ const cookieParser = require('cookie-parser')
 const cookieSession = require('cookie-session')
 const csurf = require('csurf')
 const flash = require('connect-flash')
-
+const session = require('express-session')
+const Store = require('connect-redis')(session)
 
 const routes = require('./routes');
 
@@ -14,18 +15,28 @@ const app = new express()
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(cookieParser())
 
-if (process.env.SESSION_SECRET_COOKIE) {
-    app.use(cookieSession({
-        secret:  process.env.SESSION_SECRET_COOKIE,
-        maxAge: 1000 * 60 * 60 * 24 * 14
-    }))
-} else {
-    const {cookieSecret} = require('./secrets') 
-    app.use(cookieSession({
-        secret: cookieSecret,
-        maxAge: 1000 * 60 * 60 * 24 * 14
-    }))
-}
+// if (process.env.SESSION_SECRET_COOKIE) {
+//     app.use(cookieSession({
+//         secret:  process.env.SESSION_SECRET_COOKIE,
+//         maxAge: 1000 * 60 * 60 * 24 * 14
+//     }))
+// } else {
+//     const {cookieSecret} = require('./secrets') 
+//     app.use(cookieSession({
+//         secret: cookieSecret,
+//         maxAge: 1000 * 60 * 60 * 24 * 14
+//     }))
+// }
+app.use(session({
+    store: new Store({
+        ttl: 3600,
+        host: 'localhost',
+        port: 6379
+    }),
+    resave: false,
+    saveUninitialized: true,
+    secret: 'my super fun secret'
+}))
 
 app.use(flash())
 app.use(csurf())
