@@ -231,6 +231,11 @@ body, html {
     border: 1px solid black;
 }
 
+.forget__btn {
+    position: absolute;
+    bottom: 20px;
+}
+
 .edit-profil {
     position: absolute;
     top: 0;

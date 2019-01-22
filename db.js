@@ -52,6 +52,26 @@ module.exports.addUser = (firstName, lastName, email, password) => {
     )
 }
 
+// GET USER BY EMAIL
+module.exports.getUserByEmail = (email) => {
+    return db.query(`
+        SELECT * FROM users 
+        WHERE email = $1`,
+        [email]
+    )
+}
+
+// UPDTAE USER PASSWORD
+module.exports.updatePassword = (email, password) => {
+    return db.query(`
+        UPDATE users 
+        SET password = $2
+        WHERE email = $1
+        RETURNING id, first_name, last_name`,
+        [email, password]
+    )
+}
+
 // ADD USER PROFIL 
 module.exports.addProfile = (age, city, url, userID) => {
     return db.query(`

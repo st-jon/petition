@@ -4,12 +4,14 @@
     <div class="error">{{errorMessage}}</div>
 {{/if}}
 
+{{#if message}}
+    <div class="success">{{message}}</div>
+{{/if}}
+
+<div class="presentation">Please enter your email. You will receive an email to reset your password.</div>
+
 <form class="form" method="POST">
     <input type="text" name="email" class="input" placeholder="email" autocomplete="off" autofocus>
-    <input type="password" name= "password" class="input" placeholder="password">
     <input type="hidden" name="_csrf" value="{{csrfToken}}">
-    <button class='btn btn__login'>LOGIN</button>
+    <button class='btn btn__login'>RESET PASSWORD</button>
 </form>
-
-<a class="go-back forget__btn" href="/forget">forget your password ?</a>
-

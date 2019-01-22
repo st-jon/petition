@@ -36,15 +36,18 @@ PasswordValidator
 
 
 // REGISTER AND EDIT FROM VALIDATION
-validateForm = (body) => {
-    if(body.firstName === '' || body.lastName === '') {
-        return 'Please provide first and last name'
-    }
+validateForm = (body, onlyPass) => {
 
-    if (!validator.validate(body.email)) {
-        return 'please provide a valid email'
+    if (onlyPass === false) {
+        if(body.firstName === '' || body.lastName === '') {
+            return 'Please provide first and last name'
+        }
+    
+        if (!validator.validate(body.email)) {
+            return 'please provide a valid email'
+        }
     }
-
+    
     let password = body.password
     if (password) {
         let validation = PasswordValidator.validate(password, { list: true })
@@ -64,5 +67,6 @@ validateForm = (body) => {
 
     return
 }
+
 
 module.exports = { PasswordValidator, checkProfile, validateForm }

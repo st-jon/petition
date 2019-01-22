@@ -1,0 +1,18 @@
+<a class="logout" href="/register">Home</a>
+
+{{#if errorMessage}}
+    <div class="error">{{errorMessage}}</div>
+{{/if}}
+
+{{#if message}}
+    <div class="success">{{message}}</div>
+{{/if}}
+
+<div class="presentation">Please enter your new password.</div>
+
+<form class="form" method="POST">
+    <input type="password" name= "password" class="input" placeholder="password" autofocus>
+    <input type="password" name= "confirm" class="input" placeholder="confirm password">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <button class='btn btn__login'>UPDATE PASSWORD</button>
+</form>
