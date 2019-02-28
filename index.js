@@ -2,13 +2,12 @@ const express = require('express')
 const hb = require('express-handlebars')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
-const cookieSession = require('cookie-session')
 const csurf = require('csurf')
 const flash = require('connect-flash')
 const session = require('express-session')
 const Store = require('connect-redis')(session)
 
-const routes = require('./routes');
+const routes = require('./routes')
 
 const app = new express()
 

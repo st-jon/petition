@@ -8,7 +8,7 @@ const {hashPassword, checkPassword} = require('./crypt')
 const {private, hasSigned, isLoggedIn, isRegistered} = require('./middleware')
 const {sendgridUser, sendgridPass} = require('./secrets')
 
-const app = express()
+const app = express.Router()
 
 const redis = require('redis')
 const {promisify} = require('util')
